@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Test</title>
+    <style>
+      #tabs{
+        margin: 20px auto;
+        text-align: center;
+      }
+      #tabs .tab{
+        max-width:150px;
+        width:100%;
+        text-align:center;
+        padding: 15px;
+        font-size:18px;
+        font-weight:bold;
+        display:inline-block;
+        box-sizing: border-box;
+        border:1px solid #ddd;
+        cursor: pointer;
+      }
+      #tabs .tab.active{
+        background-color:tomato;
+        color:#fff;
+      }
+
+      #results{
+
+      }
+      #results .tab-content{
+        /* display:table; */
+        width:100%;
+        table-layout: fixed;
+        display:none;
+      }
+      #results .tab-content.active{
+        display:table;
+      }
+      #results .tab-content .header{
+        display:table-header-group;
+      }
+      #results .tab-content .header > div{
+        display:table-cell;
+        text-align:center;
+        border-top:1px solid #000;
+        border-right:1px solid #fff;
+        border-bottom:2px solid #000;
+        background-color:#000;
+        color:#fff;
+        padding:5px 0;
+      }
+      #results .tab-content .header > div:first-of-type{
+        border-left:1px solid #fff;
+      }
+
+      #results .tab-content .body{
+        display:table-row-group;
+      }
+      #results .tab-content .body .row{
+        display:table-row;
+      }
+      #results .tab-content .body .row > div{
+        display:table-cell;
+        text-align:center;
+        border-right:1px solid #ddd;
+        border-bottom:12px solid #ddd;
+        padding:5px 0;
+      }
+      #results .tab-content .body .row > div:first-of-type{
+        border-left:1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    유저 베팅 정보 조회
+    <form onsubmit="return get_data(this);" >
+      Turn:<input type="text" name="turn"><br>
+      보내기:<input type="submit">
+    </form>
+    <div id="tabs">
+      <div id="tab1" class="tab active" onclick="tab_change(1)">성공 내역</div>
+      <div id="tab2" class="tab" onclick="tab_change(2)">실패 내역</div>
+    </div>
+
+    <div id="results">
+      <div id="tab_content1" class="tab-content active"></div>
+      <div id="tab_content2" class="tab-content"></div>
+
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk=" crossorigin="anonymous"></script>
+    <script>
+      function tab_change(target){
+        $(".tab").removeClass("active");
+        $(".tab-content").removeClass("active");
+
+        $("#tab"+target).addClass("active");
+        $("#tab_content"+target).addClass("active");
+      }
+
+      function change_en_to_kr(en){
+        var kr = en;
+        switch(kr){
+          case "curturntime" : kr = "배팅시간"; break;
+          case "gameid"      : kr = "게임ID"; break;
+          case "select1"     : kr = "1]베팅"; break;
+          case "cnt1"        : kr = "베팅금액"; break;
+          case "rselect1"    : kr = "결과"; break;
+          case "select2"     : kr = "2]베팅"; break;
+          case "cnt2"        : kr = "베팅금액"; break;
+          case "rselect2"    : kr = "결과"; break;
+          case "select3"     : kr = "3]베팅"; break;
+          case "cnt3"        : kr = "베팅금액"; break;
+          case "rselect3"    : kr = "결과"; break;
+          case "select4"     : kr = "4]베팅"; break;
+          case "cnt4"        : kr = "베팅금액"; break;
+          case "rselect4"    : kr = "결과"; break;
+        }
+        return kr;
+      }
+
+      function t_header(arr){
+        var result = "<div class='header'>";
+
+        var keys = Object.keys(arr);
+        for(var i = 0; i<keys.length; i++){
+          result += "<div>"+change_en_to_kr(keys[i])+"</div>";
+        }
+
+        result += "</div>";
+
+        return result;
+      }
+
+      function t_body(arr){
+        var result = "<div class='body'>";
+
+        for(var i =0; i < arr.length; i++){
+          // console.log(arr[i]);
+          result += "<div class='row'>";
+
+            var item = Object.keys(arr[i]).map((key) => [key,arr[i][key]]);
+
+            for(var j=0; j<item.length; j++){
+              if(item[j][0] == "select1") item[j][1] = (item[j][1] == 0) ? "왼쪽" : "오른쪽";
+              if(item[j][0] == "select2") item[j][1] = (item[j][1] == 0) ? "왼쪽" : "오른쪽";
+              if(item[j][0] == "select3") item[j][1] = (item[j][1] == 0) ? "왼쪽" : "오른쪽";
+              if(item[j][0] == "select4") item[j][1] = (item[j][1] == 0) ? "왼쪽" : "오른쪽";
+              if(item[j][0] == "rselect1") item[j][1] = (item[j][1] == 0) ? "실패" : "성공";
+              if(item[j][0] == "rselect2") item[j][1] = (item[j][1] == 0) ? "실패" : "성공";
+              if(item[j][0] == "rselect3") item[j][1] = (item[j][1] == 0) ? "실패" : "성공";
+              if(item[j][0] == "rselect4") item[j][1] = (item[j][1] == 0) ? "실패" : "성공";
+
+              result += "<div>"+item[j][1]+"</div>";
+            }
+          result += "</div>";
+        }
+
+        result += "</div>";
+        return result;
+      }
+
+      function isEmptyArr(arr){
+        if(Array.isArray(arr) && arr.length === 0){
+          return true;
+        }
+
+        return false;
+      }
+
+      function get_data(f){
+        $.ajax({
+          url:"https://www.kndigames.com/getCurrentBet",
+          method:"POST",
+          data:{
+            turn : f.turn.value,
+          },
+          dataType:"JSON",
+          success : function(json){
+            if(json.code == 200){
+              if(!json.data) return false; //data 값이 없을경우
+
+              var failed = json.data.failed;
+              var success = json.data.success;
+
+              if(isEmptyArr(failed)){ //실패내역
+                $("#tab_content2").html("실패내역이 없습니다.");
+              }else{
+                var failed_header = t_header(failed[0]);
+                var failed_body = t_body(failed);
+
+                var result = failed_header + failed_body;
+
+                $("#tab_content2").html(result);
+              }
+
+              if(isEmptyArr(success)){ //성공내역
+                $("#tab_content1").html("성공내역이 없습니다.");
+              }else{
+                var success_header = t_header(success[0]);
+                var success_body = t_body(success);
+
+                var result = success_header + success_body;
+
+                $("#tab_content1").html(result);
+              }
+
+            }else{
+              alert("요청이 실패하였습니다.");
+            }
+          }
+        })
+
+        return false;
+      }
+
+    </script>
+  </body>
+</html>
